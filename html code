@@ -1,0 +1,2773 @@
+<!DOCTYPE html>
+<html>
+<head>
+  <base target="_top">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/sweetalert2@11/dist/sweetalert2.min.css">
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
+  <style>
+    * {
+      margin: 0;
+      padding: 0;
+      box-sizing: border-box;
+    }
+
+    body {
+      font-family: 'Inter', -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif;
+      background: linear-gradient(135deg, #2563eb 0%, #1e40af 100%);
+      min-height: 100vh;
+      padding: 20px;
+    }
+
+    .container {
+      max-width: 900px;
+      margin: 0 auto;
+    }
+
+    .header {
+      text-align: center;
+      color: white;
+      margin-bottom: 30px;
+      animation: fadeIn 0.6s ease-in;
+    }
+
+    .header h1 {
+      font-size: 2.5rem;
+      font-weight: 700;
+      margin-bottom: 8px;
+      text-shadow: 2px 2px 4px rgba(0,0,0,0.2);
+    }
+
+    .header p {
+      font-size: 1rem;
+      opacity: 0.95;
+    }
+
+    .tab-buttons {
+      display: flex;
+      gap: 12px;
+      margin-bottom: 20px;
+      flex-wrap: wrap;
+    }
+
+    .tab-buttons button {
+      flex: 1;
+      min-width: 150px;
+      padding: 14px 24px;
+      border: none;
+      border-radius: 12px;
+      background: rgba(255, 255, 255, 0.2);
+      color: white;
+      font-size: 16px;
+      font-weight: 600;
+      cursor: pointer;
+      transition: all 0.3s ease;
+      backdrop-filter: blur(10px);
+    }
+
+    .tab-buttons button:hover {
+      background: rgba(255, 255, 255, 0.3);
+      transform: translateY(-2px);
+    }
+
+    .tab-buttons button.active {
+      background: white;
+      color: #2563eb;
+      box-shadow: 0 8px 16px rgba(0,0,0,0.2);
+    }
+
+    .form-section {
+      margin-bottom: 32px;
+      padding: 24px;
+      background: #f8fafc;
+      border-radius: 12px;
+      border: 2px solid #e2e8f0;
+    }
+
+    .form-section h3 {
+      color: #1e293b;
+      font-size: 1.3rem;
+      margin-bottom: 20px;
+      font-weight: 600;
+      display: flex;
+      align-items: center;
+      gap: 8px;
+      position: relative;
+    }
+
+    .dropdown-wrapper {
+      position: relative;
+      display: inline-block;
+      width: 100%;
+    }
+
+    .dropdown-loading {
+      position: absolute;
+      right: 12px;
+      top: 50%;
+      transform: translateY(-50%);
+      width: 20px;
+      height: 20px;
+      border: 2px solid #e0e0e0;
+      border-top: 2px solid #2563eb;
+      border-radius: 50%;
+      animation: spin 0.8s linear infinite;
+      pointer-events: none;
+      display: none;
+    }
+
+    .dropdown-loading.show {
+      display: block;
+    }
+
+    select:disabled {
+      opacity: 0.6;
+      cursor: not-allowed;
+    }
+
+    .section-grid {
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: 20px;
+    }
+
+    .journal-layout {
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: 24px;
+      margin-bottom: 24px;
+    }
+
+    .journal-section {
+      background: #f8fafc;
+      padding: 20px;
+      border-radius: 12px;
+      border: 2px solid #e2e8f0;
+    }
+
+    .journal-section h3 {
+      color: #1e293b;
+      font-size: 1.1rem;
+      margin-bottom: 16px;
+      font-weight: 600;
+      padding-bottom: 8px;
+      border-bottom: 2px solid #e2e8f0;
+    }
+
+    .history-section {
+      background: #f8fafc;
+      padding: 24px;
+      border-radius: 12px;
+      border: 2px solid #e2e8f0;
+      margin-top: 24px;
+    }
+
+    .history-section h3 {
+      color: #1e293b;
+      font-size: 1.2rem;
+      margin-bottom: 20px;
+      font-weight: 600;
+    }
+
+    .filter-controls {
+      display: flex;
+      gap: 12px;
+      margin-bottom: 20px;
+      flex-wrap: wrap;
+      align-items: flex-end;
+    }
+
+    .filter-group {
+      flex: 1;
+      min-width: 200px;
+    }
+
+    .filter-group label {
+      font-size: 13px;
+      margin-bottom: 6px;
+    }
+
+    .filter-buttons {
+      display: flex;
+      gap: 8px;
+    }
+
+    .switch-selector {
+      display: flex;
+      background: #e5e7eb;
+      border-radius: 8px;
+      padding: 4px;
+      gap: 4px;
+      margin-bottom: 20px;
+    }
+
+    .switch-selector button {
+      flex: 1;
+      padding: 10px 20px;
+      border: none;
+      background: transparent;
+      color: #6b7280;
+      font-weight: 600;
+      font-size: 14px;
+      border-radius: 6px;
+      cursor: pointer;
+      transition: all 0.3s ease;
+    }
+
+    .switch-selector button.active {
+      background: white;
+      color: #2563eb;
+      box-shadow: 0 2px 4px rgba(0,0,0,0.1);
+    }
+
+    .switch-selector button:hover:not(.active) {
+      background: rgba(255,255,255,0.5);
+    }
+
+    .results-count {
+      background: #eff6ff;
+      border-left: 4px solid #2563eb;
+      padding: 12px 16px;
+      margin-bottom: 16px;
+      border-radius: 4px;
+      font-size: 14px;
+      font-weight: 600;
+      color: #1e40af;
+    }
+
+    .filter-btn {
+      padding: 10px 20px;
+      border: none;
+      border-radius: 8px;
+      font-size: 14px;
+      font-weight: 600;
+      cursor: pointer;
+      transition: all 0.3s ease;
+    }
+
+    .filter-btn.primary {
+      background: linear-gradient(135deg, #2563eb 0%, #1e40af 100%);
+      color: white;
+      box-shadow: 0 2px 8px rgba(37, 99, 235, 0.3);
+    }
+
+    .filter-btn.primary:hover {
+      transform: translateY(-1px);
+      box-shadow: 0 4px 12px rgba(37, 99, 235, 0.4);
+    }
+
+    .filter-btn.secondary {
+      background: #f1f5f9;
+      color: #475569;
+      border: 1px solid #cbd5e1;
+    }
+
+    .filter-btn.secondary:hover {
+      background: #e2e8f0;
+    }
+
+    .export-buttons {
+      display: flex;
+      gap: 8px;
+      margin-bottom: 16px;
+    }
+
+    .export-btn {
+      padding: 8px 16px;
+      border: none;
+      border-radius: 8px;
+      font-size: 13px;
+      font-weight: 600;
+      cursor: pointer;
+      transition: all 0.3s ease;
+      display: flex;
+      align-items: center;
+      gap: 6px;
+    }
+
+    .export-btn.excel {
+      background: linear-gradient(135deg, #10b981 0%, #059669 100%);
+      color: white;
+      box-shadow: 0 2px 8px rgba(16, 185, 129, 0.3);
+    }
+
+    .export-btn.pdf {
+      background: linear-gradient(135deg, #ef4444 0%, #dc2626 100%);
+      color: white;
+      box-shadow: 0 2px 8px rgba(239, 68, 68, 0.3);
+    }
+
+    .export-btn:hover {
+      transform: translateY(-1px);
+      box-shadow: 0 4px 12px rgba(0, 0, 0, 0.2);
+    }
+
+    .history-table-wrapper {
+      overflow-x: auto;
+      border-radius: 8px;
+      background: white;
+    }
+
+    .history-table {
+      width: 100%;
+      border-collapse: collapse;
+      font-size: 14px;
+    }
+
+    .history-table thead {
+      background: #2563eb;
+      color: white;
+    }
+
+    .history-table th {
+      padding: 12px 10px;
+      text-align: left;
+      font-weight: 600;
+      font-size: 13px;
+    }
+
+    .history-table td {
+      padding: 10px;
+      border-bottom: 1px solid #e2e8f0;
+      color: #475569;
+    }
+
+    .history-table tbody tr:hover {
+      background: #f8fafc;
+    }
+
+    .history-table tbody tr:last-child td {
+      border-bottom: none;
+    }
+
+    .no-data {
+      text-align: center;
+      padding: 40px;
+      color: #94a3b8;
+      font-style: italic;
+    }
+
+    .modal-overlay {
+      display: none;
+      position: fixed;
+      top: 0;
+      left: 0;
+      right: 0;
+      bottom: 0;
+      background: rgba(0, 0, 0, 0.6);
+      backdrop-filter: blur(4px);
+      z-index: 1000;
+      align-items: center;
+      justify-content: center;
+      padding: 20px;
+      overflow-y: auto;
+    }
+
+    .modal-overlay.show {
+      display: flex;
+    }
+
+    .modal-content {
+      background: white;
+      border-radius: 20px;
+      box-shadow: 0 25px 80px rgba(0, 0, 0, 0.4);
+      width: 100%;
+      max-width: 900px;
+      max-height: 90vh;
+      overflow-y: auto;
+      position: relative;
+      animation: modalSlideIn 0.3s ease-out;
+    }
+
+    @keyframes modalSlideIn {
+      from {
+        opacity: 0;
+        transform: translateY(-30px) scale(0.95);
+      }
+      to {
+        opacity: 1;
+        transform: translateY(0) scale(1);
+      }
+    }
+
+    .modal-header {
+      padding: 24px 32px;
+      border-bottom: 2px solid #e2e8f0;
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      background: linear-gradient(135deg, #2563eb 0%, #1e40af 100%);
+      color: white;
+      border-radius: 20px 20px 0 0;
+    }
+
+    .modal-header h2 {
+      margin: 0;
+      color: white;
+      font-size: 1.5rem;
+    }
+
+    .modal-close {
+      background: rgba(255, 255, 255, 0.2);
+      border: none;
+      color: white;
+      font-size: 28px;
+      width: 36px;
+      height: 36px;
+      border-radius: 50%;
+      cursor: pointer;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      transition: all 0.3s ease;
+      line-height: 1;
+    }
+
+    .modal-close:hover {
+      background: rgba(255, 255, 255, 0.3);
+      transform: rotate(90deg);
+    }
+
+    .modal-body {
+      padding: 32px;
+    }
+
+    @media (max-width: 768px) {
+      .section-grid {
+        grid-template-columns: 1fr;
+      }
+
+      .journal-layout {
+        grid-template-columns: 1fr;
+        gap: 16px;
+      }
+
+      .filter-controls {
+        flex-direction: column;
+      }
+
+      .filter-group {
+        width: 100%;
+      }
+
+      .filter-buttons {
+        width: 100%;
+        flex-direction: column;
+      }
+
+      .filter-btn {
+        width: 100%;
+      }
+    }
+
+    .get-attendance-btn {
+      display: none;
+      background: linear-gradient(135deg, #10b981 0%, #059669 100%);
+      color: white;
+      border: none;
+      padding: 12px 24px;
+      border-radius: 8px;
+      font-weight: 600;
+      cursor: pointer;
+      transition: all 0.3s ease;
+      box-shadow: 0 4px 12px rgba(16, 185, 129, 0.3);
+      margin-top: 16px;
+    }
+
+    .get-attendance-btn:hover {
+      transform: translateY(-2px);
+      box-shadow: 0 6px 16px rgba(16, 185, 129, 0.4);
+    }
+
+    form {
+      background: white;
+      padding: 32px;
+      border-radius: 20px;
+      box-shadow: 0 20px 60px rgba(0,0,0,0.3);
+      animation: slideUp 0.5s ease-out;
+    }
+
+    h2 {
+      color: #333;
+      font-size: 1.8rem;
+      margin-bottom: 24px;
+      font-weight: 700;
+    }
+
+    .form-group {
+      margin-bottom: 20px;
+    }
+
+    label {
+      display: block;
+      margin-bottom: 8px;
+      font-weight: 600;
+      color: #555;
+      font-size: 14px;
+    }
+
+    input, select, textarea {
+      width: 100%;
+      padding: 12px 16px;
+      border: 2px solid #e0e0e0;
+      border-radius: 10px;
+      font-size: 15px;
+      font-family: inherit;
+      transition: all 0.3s ease;
+      background: #fafafa;
+    }
+
+    input:focus, select:focus, textarea:focus {
+      outline: none;
+      border-color: #2563eb;
+      background: white;
+      box-shadow: 0 0 0 3px rgba(37, 99, 235, 0.1);
+    }
+
+    textarea {
+      resize: vertical;
+      min-height: 100px;
+    }
+
+    button[type="button"] {
+      width: 100%;
+      padding: 14px;
+      margin-top: 24px;
+      border: none;
+      border-radius: 12px;
+      background: linear-gradient(135deg, #2563eb 0%, #1e40af 100%);
+      color: white;
+      font-size: 16px;
+      font-weight: 600;
+      cursor: pointer;
+      transition: all 0.3s ease;
+      box-shadow: 0 4px 15px rgba(37, 99, 235, 0.4);
+    }
+
+    button[type="button"]:hover {
+      transform: translateY(-2px);
+      box-shadow: 0 6px 20px rgba(37, 99, 235, 0.6);
+    }
+
+    button[type="button"]:active {
+      transform: translateY(0);
+    }
+
+    .info-box {
+      background: linear-gradient(135deg, #e3f2fd 0%, #f3e5f5 100%);
+      border: 2px solid #90caf9;
+      padding: 16px;
+      margin-top: 16px;
+      margin-bottom: 16px;
+      border-radius: 12px;
+      animation: fadeIn 0.4s ease;
+    }
+
+    .info-box p {
+      margin: 8px 0;
+      color: #555;
+      font-size: 14px;
+    }
+
+    .info-box strong {
+      color: #333;
+      font-weight: 600;
+    }
+
+    .hidden {
+      display: none;
+    }
+
+    #spinner {
+      text-align: center;
+      margin: 20px;
+    }
+
+    .spinner-custom {
+      border: 4px solid rgba(255, 255, 255, 0.3);
+      border-top: 4px solid white;
+      border-radius: 50%;
+      width: 40px;
+      height: 40px;
+      animation: spin 1s linear infinite;
+      margin: 0 auto;
+    }
+
+    @keyframes spin {
+      0% { transform: rotate(0deg); }
+      100% { transform: rotate(360deg); }
+    }
+
+    @keyframes fadeIn {
+      from { opacity: 0; }
+      to { opacity: 1; }
+    }
+
+    @keyframes slideUp {
+      from {
+        opacity: 0;
+        transform: translateY(30px);
+      }
+      to {
+        opacity: 1;
+        transform: translateY(0);
+      }
+    }
+
+    @media (max-width: 768px) {
+      body {
+        padding: 12px;
+      }
+
+      .header h1 {
+        font-size: 1.8rem;
+      }
+
+      form {
+        padding: 20px;
+      }
+
+      h2 {
+        font-size: 1.5rem;
+      }
+
+      .tab-buttons button {
+        min-width: 120px;
+        padding: 12px 16px;
+        font-size: 14px;
+      }
+
+    }
+
+    @media (max-width: 480px) {
+      .header h1 {
+        font-size: 1.5rem;
+      }
+
+      form {
+        padding: 16px;
+      }
+
+      input, select, textarea {
+        padding: 10px 12px;
+        font-size: 14px;
+      }
+    }
+  </style>
+</head>
+<body>
+  <div class="container">
+    <div class="header">
+      <h1>💼 Salary Management</h1>
+      <p>Efficient employee payment tracking system</p>
+    </div>
+
+    <div class="tab-buttons">
+      <button id="journalTab" class="active" onclick="showForm('journal')">📝 Journal Form</button>
+      <button id="accountTab" onclick="showForm('account')">📊 Account Form</button>
+      <button id="accountHistoryTab" onclick="showForm('accountHistory')">📋 Account History</button>
+    </div>
+
+    <!-- Journal Form -->
+    <form id="journalForm">
+      <h2>📝 Journal Entry</h2>
+
+      <div class="journal-layout">
+        <!-- Left Section: Employee Details -->
+        <div class="journal-section">
+          <h3>👤 Employee Details</h3>
+
+          <div class="form-group">
+            <label>Employee ID</label>
+            <div class="dropdown-wrapper">
+              <select name="employeeId" id="journalEmployeeId" onchange="fetchEmployee(this.value, 'journal')" required>
+                <option value="">-- Select Employee ID --</option>
+              </select>
+              <div class="dropdown-loading" id="journalEmployeeLoading"></div>
+            </div>
+          </div>
+
+          <div id="journalInfo" class="info-box hidden"></div>
+
+          <!-- Hidden Inputs to store values -->
+          <input type="hidden" name="employeeName">
+          <input type="hidden" name="category">
+          <input type="hidden" name="employeeAdhar">
+          <input type="hidden" name="mobile">
+        </div>
+
+        <!-- Right Section: Transaction Details -->
+        <div class="journal-section">
+          <h3>💳 Transaction Details</h3>
+
+          <div class="form-group">
+            <label>Date of Payment</label>
+            <input type="date" name="datePayment" onchange="autoFillMonthYear(this)" required>
+          </div>
+
+          <!-- Hidden Month-Year field -->
+          <input type="hidden" name="monthYear">
+
+          <div class="form-group">
+            <label>Transaction Amount</label>
+            <input type="number" step="0.01" name="transactionMoney" placeholder="Enter amount" required>
+          </div>
+
+          <div class="form-group">
+            <label>Transaction Mode</label>
+            <select name="transactionMode" required>
+              <option value="">-- Select Payment Method --</option>
+              <option value="Cash">Cash</option>
+              <option value="Online">Online</option>
+            </select>
+          </div>
+
+          <div class="form-group">
+            <label>Transaction Note</label>
+            <textarea name="transactionNote" placeholder="Enter transaction notes (optional)" rows="3"></textarea>
+          </div>
+        </div>
+      </div>
+
+      <input type="hidden" name="rowIndex" id="journalRowIndex" value="">
+      <button type="button" onclick="confirmJournal()" id="journalSubmitBtn">💾 Submit Journal Entry</button>
+      <button type="button" onclick="cancelJournalUpdate()" id="journalCancelBtn" class="hidden" style="width: 100%; padding: 14px; margin-top: 12px; border: none; border-radius: 12px; background: linear-gradient(135deg, #ef4444 0%, #dc2626 100%); color: white; font-size: 16px; font-weight: 600; cursor: pointer; transition: all 0.3s ease; box-shadow: 0 4px 15px rgba(239, 68, 68, 0.4);">❌ Cancel Update</button>
+
+      <!-- Journal History Section -->
+      <div class="history-section" style="margin-top: 24px;">
+        <h3>📋 Journal History</h3>
+
+        <div class="switch-selector">
+          <button type="button" id="journalSpecificDateBtn" class="active" onclick="switchJournalFilterMode('specific')">📅 Specific Date</button>
+          <button type="button" id="journalDateRangeBtn" onclick="switchJournalFilterMode('range')">📆 Date Range</button>
+        </div>
+
+        <div id="specificDateFilter">
+          <div class="form-group">
+            <label>Select Date</label>
+            <input type="date" id="specificDateInput">
+          </div>
+        </div>
+
+        <div id="rangeDateFilter" class="hidden">
+          <div class="section-grid">
+            <div class="form-group">
+              <label>From Date</label>
+              <input type="date" id="fromDateInput">
+            </div>
+
+            <div class="form-group">
+              <label>To Date</label>
+              <input type="date" id="toDateInput">
+            </div>
+          </div>
+        </div>
+
+        <div class="filter-buttons">
+          <button type="button" class="filter-btn primary" onclick="filterJournalHistory()">🔍 Filter</button>
+          <button type="button" class="filter-btn secondary" onclick="clearJournalFilters()">🔄 Clear</button>
+        </div>
+
+        <div id="journalResultsCount" class="results-count" style="display: none;"></div>
+
+        <div class="export-buttons">
+          <button type="button" class="export-btn excel" onclick="downloadJournalAsExcel()">📥 Download Excel</button>
+          <button type="button" class="export-btn pdf" onclick="downloadJournalAsPDF()">📥 Download PDF</button>
+        </div>
+
+        <div class="history-table-wrapper">
+          <table class="history-table" id="journalHistoryTable">
+            <thead>
+              <tr>
+                <th>Employee ID</th>
+                <th>Employee Name</th>
+                <th>Category</th>
+                <th>Date of Payment</th>
+                <th>Transaction Amount</th>
+                <th>Transaction Mode</th>
+                <th>Transaction Note</th>
+                <th>Month-Year</th>
+                <th>Action</th>
+              </tr>
+            </thead>
+            <tbody id="journalHistoryBody">
+              <tr>
+                <td colspan="9" class="no-data">Use filters to view journal history</td>
+              </tr>
+            </tbody>
+          </table>
+        </div>
+      </div>
+    </form>
+
+    <!-- Account Form -->
+    <form id="accountForm" class="hidden">
+      <h2>📊 Account Entry</h2>
+
+      <!-- Section 1: Employee Details -->
+      <div class="form-section">
+        <h3>👤 Employee Details</h3>
+
+        <div class="form-group">
+          <label>Employee ID</label>
+          <div class="dropdown-wrapper">
+            <select name="employeeId" id="accountEmployeeId" onchange="fetchEmployee(this.value, 'account')" required>
+              <option value="">-- Select Employee ID --</option>
+            </select>
+            <div class="dropdown-loading" id="accountEmployeeLoading"></div>
+          </div>
+        </div>
+
+        <!-- Info Box for Employee Details -->
+        <div id="accountInfo" class="info-box hidden"></div>
+
+        <!-- Hidden Inputs to store values -->
+        <input type="hidden" name="employeeName">
+        <input type="hidden" name="category">
+        <input type="hidden" name="adhar">
+        <input type="hidden" name="mobile">
+
+        <div class="form-group">
+          <label>Month-Year</label>
+          <div class="dropdown-wrapper">
+            <select name="monthYear" id="accountMonthYear" onchange="handleMonthYearChange(this.value)" required>
+              <option value="">-- Select Month-Year --</option>
+            </select>
+            <div class="dropdown-loading" id="accountMonthYearLoading"></div>
+          </div>
+        </div>
+      </div>
+
+      <!-- Section 2: Duty & OT Calculation -->
+      <div class="form-section">
+        <h3>📅 Duty & O.T. Calculation</h3>
+
+        <div class="section-grid">
+          <div class="form-group">
+            <label>Total Duty</label>
+            <input type="number" name="totalDuty" id="totalDutyInput" placeholder="Enter total duty days" onchange="calculateGrossSalary()" oninput="calculateGrossSalary()" required>
+          </div>
+
+          <div class="form-group">
+            <label>Total OT</label>
+            <input type="number" name="totalOT" id="totalOTInput" placeholder="Enter overtime hours" onchange="calculateGrossSalary()" oninput="calculateGrossSalary()">
+          </div>
+        </div>
+
+        <button type="button" class="get-attendance-btn" onclick="getAttendance()">
+          📊 Get Attendance from Sheet
+        </button>
+      </div>
+
+      <!-- Section 3: Advanced Salary Details -->
+      <div class="form-section">
+        <h3>💰 Advanced Salary Details</h3>
+
+        <div class="section-grid">
+          <div class="form-group">
+            <label>Previous Balance (Auto-calculated)</label>
+            <input type="number" step="0.01" name="prevBalance" id="prevBalanceInput" placeholder="Auto-calculated from previous month" readonly style="background: #e8f4f8;">
+          </div>
+
+          <div class="form-group">
+            <label>Salary/Month</label>
+            <input type="number" step="0.01" name="salaryMonth" id="salaryMonthInput" placeholder="Enter monthly salary" onchange="calculateGrossSalary()" oninput="calculateGrossSalary()" required>
+          </div>
+
+          <div class="form-group">
+            <label>Gross Salary (Auto-calculated)</label>
+            <input type="number" step="0.01" name="grossSalary" id="grossSalaryInput" placeholder="Auto-calculated" readonly style="background: #e8f4f8;" required>
+          </div>
+
+          <div class="form-group">
+            <label>Advance (Auto-calculated from Journal)</label>
+            <input type="number" step="0.01" name="advance" id="advanceInput" placeholder="Auto-calculated" readonly style="background: #e8f4f8;">
+          </div>
+
+          <div class="form-group">
+            <label>Salary Paid (15th of next month)</label>
+            <input type="number" step="0.01" name="salaryPaid" id="salaryPaidInput" placeholder="Auto-calculated" readonly style="background: #e8f4f8;" required>
+          </div>
+
+          <div class="form-group">
+            <label>Balance to be Paid (Auto-calculated)</label>
+            <input type="number" step="0.01" name="balanceToBePaid" id="balanceToBePaidInput" placeholder="Auto-calculated" readonly style="background: #e8f4f8;">
+          </div>
+        </div>
+
+        <button type="button" class="get-attendance-btn" onclick="getAdvancedCalculations()">
+          💳 Get Advanced & Salary from Journal
+        </button>
+      </div>
+
+      <button type="button" onclick="confirmAccount()">💾 Submit Account Entry</button>
+    </form>
+
+    <!-- Account History Form -->
+    <form id="accountHistoryForm" class="hidden">
+      <h2>📋 Account History</h2>
+
+      <div class="form-section">
+        <h3>👤 Employee Details</h3>
+
+        <div class="form-group">
+          <label>Employee ID</label>
+          <div class="dropdown-wrapper">
+            <select name="employeeId" id="accountHistoryEmployeeId" onchange="fetchAccountHistoryEmployee()" required>
+              <option value="">-- Select Employee ID --</option>
+            </select>
+            <div class="dropdown-loading" id="accountHistoryEmployeeLoading"></div>
+          </div>
+        </div>
+
+        <div id="accountHistoryEmpInfo" class="info-box hidden"></div>
+      </div>
+
+      <div class="form-section">
+        <h3>📅 Filter Options</h3>
+
+        <div class="switch-selector">
+          <button type="button" id="accountSingleMonthBtn" class="active" onclick="switchAccountFilterMode('single')">📅 Single Month</button>
+          <button type="button" id="accountMonthRangeBtn" onclick="switchAccountFilterMode('range')">📆 Month Range</button>
+        </div>
+
+        <div id="singleMonthFilter">
+          <div class="form-group">
+            <label>Select Month-Year</label>
+            <div class="dropdown-wrapper">
+              <select name="singleMonthYear" id="singleMonthYearSelect">
+                <option value="">-- Select Month-Year --</option>
+              </select>
+              <div class="dropdown-loading" id="singleMonthYearLoading"></div>
+            </div>
+          </div>
+        </div>
+
+        <div id="rangeMonthFilter" class="hidden">
+          <div class="section-grid">
+            <div class="form-group">
+              <label>From Month-Year</label>
+              <div class="dropdown-wrapper">
+                <select name="fromMonthYear" id="fromMonthYearSelect">
+                  <option value="">-- Select From Month-Year --</option>
+                </select>
+              </div>
+            </div>
+
+            <div class="form-group">
+              <label>To Month-Year</label>
+              <div class="dropdown-wrapper">
+                <select name="toMonthYear" id="toMonthYearSelect">
+                  <option value="">-- Select To Month-Year --</option>
+                </select>
+              </div>
+            </div>
+          </div>
+        </div>
+
+        <div class="filter-buttons">
+          <button type="button" class="filter-btn primary" onclick="filterAccountHistory()">🔍 Filter</button>
+          <button type="button" class="filter-btn secondary" onclick="clearAccountFilters()">🔄 Clear</button>
+        </div>
+      </div>
+
+      <div class="history-section">
+        <h3>📊 Account Records</h3>
+
+        <div id="accountResultsCount" class="results-count" style="display: none;"></div>
+
+        <div class="export-buttons">
+          <button type="button" class="export-btn excel" onclick="downloadAccountAsExcel()">📥 Download Excel</button>
+          <button type="button" class="export-btn pdf" onclick="downloadAccountAsPDF()">📥 Download PDF</button>
+        </div>
+
+        <div class="history-table-wrapper">
+          <table class="history-table" id="accountHistoryTable">
+            <thead>
+              <tr>
+                <th>Employee ID</th>
+                <th>Employee Name</th>
+                <th>Category</th>
+                <th>Month-Year</th>
+                <th>Total Duty</th>
+                <th>Total OT</th>
+                <th>Prev Balance</th>
+                <th>Salary/Month</th>
+                <th>Gross Salary</th>
+                <th>Advance</th>
+                <th>Salary Paid</th>
+                <th>Balance</th>
+                <th>Action</th>
+              </tr>
+            </thead>
+            <tbody id="accountHistoryBody">
+              <tr>
+                <td colspan="13" class="no-data">Select an employee to view history</td>
+              </tr>
+            </tbody>
+          </table>
+        </div>
+      </div>
+    </form>
+
+    <!-- Modal Popup for Account Update -->
+    <div class="modal-overlay" id="accountUpdateModal">
+      <div class="modal-content">
+        <div class="modal-header">
+          <h2>📊 Update Account Entry</h2>
+          <button type="button" class="modal-close" onclick="closeAccountModal()">&times;</button>
+        </div>
+        <div class="modal-body">
+          <form id="accountUpdateForm">
+            <!-- Section 1: Employee Details -->
+            <div class="form-section">
+              <h3>👤 Employee Details</h3>
+
+              <div class="form-group">
+                <label>Employee ID</label>
+                <input type="text" name="employeeId" id="modalEmployeeId" readonly style="background: #e8f4f8;">
+              </div>
+
+              <!-- Info Box for Employee Details -->
+              <div id="modalAccountInfo" class="info-box"></div>
+
+              <!-- Hidden Inputs to store values -->
+              <input type="hidden" name="employeeName" id="modalEmployeeName">
+              <input type="hidden" name="category" id="modalCategory">
+              <input type="hidden" name="adhar" id="modalAdhar">
+              <input type="hidden" name="mobile" id="modalMobile">
+
+              <div class="form-group">
+                <label>Month-Year</label>
+                <input type="text" name="monthYear" id="modalMonthYear" readonly style="background: #e8f4f8;">
+              </div>
+            </div>
+
+            <!-- Section 2: Duty & OT Calculation -->
+            <div class="form-section">
+              <h3>📅 Duty & O.T. Calculation</h3>
+
+              <div class="section-grid">
+                <div class="form-group">
+                  <label>Total Duty</label>
+                  <input type="number" name="totalDuty" id="modalTotalDuty" placeholder="Enter total duty days" onchange="calculateModalGrossSalary()" oninput="calculateModalGrossSalary()" required>
+                </div>
+
+                <div class="form-group">
+                  <label>Total OT</label>
+                  <input type="number" name="totalOT" id="modalTotalOT" placeholder="Enter overtime hours" onchange="calculateModalGrossSalary()" oninput="calculateModalGrossSalary()">
+                </div>
+              </div>
+            </div>
+
+            <!-- Section 3: Advanced Salary Details -->
+            <div class="form-section">
+              <h3>💰 Advanced Salary Details</h3>
+
+              <div class="section-grid">
+                <div class="form-group">
+                  <label>Previous Balance (Auto-calculated)</label>
+                  <input type="number" step="0.01" name="prevBalance" id="modalPrevBalance" placeholder="Auto-calculated from previous month" readonly style="background: #e8f4f8;">
+                </div>
+
+                <div class="form-group">
+                  <label>Salary/Month</label>
+                  <input type="number" step="0.01" name="salaryMonth" id="modalSalaryMonth" placeholder="Enter monthly salary" onchange="calculateModalGrossSalary()" oninput="calculateModalGrossSalary()" required>
+                </div>
+
+                <div class="form-group">
+                  <label>Gross Salary (Auto-calculated)</label>
+                  <input type="number" step="0.01" name="grossSalary" id="modalGrossSalary" placeholder="Auto-calculated" readonly style="background: #e8f4f8;" required>
+                </div>
+
+                <div class="form-group">
+                  <label>Advance (Auto-calculated from Journal)</label>
+                  <input type="number" step="0.01" name="advance" id="modalAdvance" placeholder="Auto-calculated" readonly style="background: #e8f4f8;">
+                </div>
+
+                <div class="form-group">
+                  <label>Salary Paid (15th of next month)</label>
+                  <input type="number" step="0.01" name="salaryPaid" id="modalSalaryPaid" placeholder="Auto-calculated" readonly style="background: #e8f4f8;" required>
+                </div>
+
+                <div class="form-group">
+                  <label>Balance to be Paid (Auto-calculated)</label>
+                  <input type="number" step="0.01" name="balanceToBePaid" id="modalBalanceToBePaid" placeholder="Auto-calculated" readonly style="background: #e8f4f8;">
+                </div>
+              </div>
+            </div>
+
+            <button type="button" onclick="confirmModalAccount()">💾 Update Account Entry</button>
+          </form>
+        </div>
+      </div>
+    </div>
+
+    <!-- Spinner -->
+    <div id="spinner" class="hidden">
+      <div class="spinner-custom"></div>
+    </div>
+  </div>
+
+  <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
+  <script>
+    // Load Employee IDs into dropdowns
+    google.script.run
+      .withSuccessHandler(ids => {
+        console.log("Received employee IDs:", ids);
+        if (!ids || !Array.isArray(ids)) {
+          console.error("Invalid employee IDs received:", ids);
+          return;
+        }
+        const journalSelect = document.getElementById("journalEmployeeId");
+        const accountSelect = document.getElementById("accountEmployeeId");
+        const accountHistorySelect = document.getElementById("accountHistoryEmployeeId");
+
+        if (!journalSelect || !accountSelect || !accountHistorySelect) {
+          console.error("Dropdown elements not found");
+          return;
+        }
+
+        ids.forEach(id => {
+          let opt1 = document.createElement("option");
+          opt1.value = id; opt1.textContent = id;
+          journalSelect.appendChild(opt1);
+          let opt2 = document.createElement("option");
+          opt2.value = id; opt2.textContent = id;
+          accountSelect.appendChild(opt2);
+          let opt3 = document.createElement("option");
+          opt3.value = id; opt3.textContent = id;
+          accountHistorySelect.appendChild(opt3);
+        });
+        console.log("Employee IDs loaded successfully");
+      })
+      .withFailureHandler(err => {
+        console.error("Failed to load employee IDs:", err);
+        Swal.fire({
+          icon: 'error',
+          title: 'Error Loading Employees',
+          text: 'Failed to load employee list: ' + err.message,
+          confirmButtonColor: '#2563eb'
+        });
+      })
+      .getEmployeeIds();
+
+    // Load Month-Year options for Account History
+    function loadAccountHistoryMonthYears() {
+      google.script.run
+        .withSuccessHandler(monthYears => {
+          const singleSelect = document.getElementById("singleMonthYearSelect");
+          const fromSelect = document.getElementById("fromMonthYearSelect");
+          const toSelect = document.getElementById("toMonthYearSelect");
+
+          singleSelect.innerHTML = '<option value="">-- Select Month-Year --</option>';
+          fromSelect.innerHTML = '<option value="">-- Select From Month-Year --</option>';
+          toSelect.innerHTML = '<option value="">-- Select To Month-Year --</option>';
+
+          if (monthYears && monthYears.length > 0) {
+            monthYears.forEach(my => {
+              let opt1 = document.createElement("option");
+              opt1.value = my;
+              opt1.textContent = my;
+              singleSelect.appendChild(opt1);
+
+              let opt2 = document.createElement("option");
+              opt2.value = my;
+              opt2.textContent = my;
+              fromSelect.appendChild(opt2);
+
+              let opt3 = document.createElement("option");
+              opt3.value = my;
+              opt3.textContent = my;
+              toSelect.appendChild(opt3);
+            });
+          }
+        })
+        .withFailureHandler(err => {
+          console.error("Error loading account month-years:", err);
+        })
+        .getAccountMonthYearOptions();
+    }
+
+    loadAccountHistoryMonthYears();
+
+    // Function to format date string to "Mon-YYYY" format
+    function formatMonthYear(dateString) {
+      if (!dateString) return '';
+      try {
+        const date = new Date(dateString);
+        if (isNaN(date.getTime())) return dateString;
+        const options = { month: 'short', year: 'numeric' };
+        return date.toLocaleDateString('en-US', options).replace(' ', '-');
+      } catch (e) {
+        return dateString;
+      }
+    }
+
+    // Load Month-Year options into Account Form dropdown
+    google.script.run
+      .withSuccessHandler(monthYears => {
+        console.log("Received month-years:", monthYears);
+        const accountMonthYear = document.getElementById("accountMonthYear");
+        if (monthYears && monthYears.length > 0) {
+          monthYears.forEach(my => {
+            let opt = document.createElement("option");
+            const formatted = formatMonthYear(my);
+            console.log("Original:", my, "Formatted:", formatted);
+            opt.value = formatted;
+            opt.textContent = formatted;
+            accountMonthYear.appendChild(opt);
+          });
+        } else {
+          console.log("No month-year data found in Journal sheet");
+        }
+      })
+      .withFailureHandler(err => {
+        console.error("Error loading month-years:", err);
+        Swal.fire({
+          icon: 'error',
+          title: 'Error Loading Data',
+          text: 'Failed to load Month-Year options: ' + err.message,
+          confirmButtonColor: '#2563eb'
+        });
+      })
+      .getMonthYearOptions();
+
+    function showForm(form) {
+      document.getElementById("journalForm").classList.add("hidden");
+      document.getElementById("accountForm").classList.add("hidden");
+      document.getElementById("accountHistoryForm").classList.add("hidden");
+      document.getElementById("journalTab").classList.remove("active");
+      document.getElementById("accountTab").classList.remove("active");
+      document.getElementById("accountHistoryTab").classList.remove("active");
+
+      if (form === "journal") {
+        document.getElementById("journalForm").classList.remove("hidden");
+        document.getElementById("journalTab").classList.add("active");
+      } else if (form === "account") {
+        document.getElementById("accountForm").classList.remove("hidden");
+        document.getElementById("accountTab").classList.add("active");
+        loadMonthYearOptions();
+      } else if (form === "accountHistory") {
+        document.getElementById("accountHistoryForm").classList.remove("hidden");
+        document.getElementById("accountHistoryTab").classList.add("active");
+        loadAccountHistoryMonthYears();
+      }
+    }
+
+    function loadMonthYearOptions() {
+      google.script.run
+        .withSuccessHandler(monthYears => {
+          console.log("Reloading month-years:", monthYears);
+          const accountMonthYear = document.getElementById("accountMonthYear");
+          accountMonthYear.innerHTML = '<option value="">-- Select Month-Year --</option>';
+          if (monthYears && monthYears.length > 0) {
+            monthYears.forEach(my => {
+              let opt = document.createElement("option");
+              const formatted = formatMonthYear(my);
+              opt.value = formatted;
+              opt.textContent = formatted;
+              accountMonthYear.appendChild(opt);
+            });
+          }
+        })
+        .withFailureHandler(err => {
+          console.error("Error reloading month-years:", err);
+        })
+        .getMonthYearOptions();
+    }
+
+    function handleMonthYearChange(monthYear) {
+      if (!monthYear) return;
+      console.log("Selected Month-Year:", monthYear);
+
+      const loadingElement = document.getElementById('accountMonthYearLoading');
+      const dropdownElement = document.getElementById('accountMonthYear');
+
+      if (loadingElement) {
+        loadingElement.classList.add('show');
+        dropdownElement.disabled = true;
+
+        setTimeout(() => {
+          loadingElement.classList.remove('show');
+          dropdownElement.disabled = false;
+          autoFetchAccountData();
+        }, 300);
+      }
+    }
+
+    function autoFetchAccountData() {
+      const employeeId = document.getElementById("accountEmployeeId").value;
+      const monthYear = document.getElementById("accountMonthYear").value;
+
+      if (!employeeId || !monthYear) {
+        return;
+      }
+
+      Swal.fire({
+        title: 'Loading Data...',
+        text: 'Fetching attendance and advanced calculations',
+        allowOutsideClick: false,
+        didOpen: () => {
+          Swal.showLoading();
+        }
+      });
+
+      google.script.run
+        .withSuccessHandler(attendanceData => {
+          document.getElementById("totalDutyInput").value = attendanceData.totalDuty || 0;
+          document.getElementById("totalOTInput").value = attendanceData.totalOT || 0;
+
+          google.script.run
+            .withSuccessHandler(advancedData => {
+              document.getElementById("advanceInput").value = advancedData.advance || 0;
+              document.getElementById("salaryPaidInput").value = advancedData.salaryPaid || 0;
+              document.getElementById("prevBalanceInput").value = advancedData.prevBalance || 0;
+
+              updatePreviousBalanceStyle();
+              calculateGrossSalary();
+              calculateBalanceToBePaid();
+
+              Swal.close();
+              Swal.fire({
+                icon: 'success',
+                title: 'Data Loaded',
+                html: `
+                  <div style="text-align: left; padding: 10px;">
+                    <p><strong>Total Duty Days:</strong> ${attendanceData.totalDuty || 0}</p>
+                    <p><strong>Total O.T. Hours:</strong> ${attendanceData.totalOT || 0}</p>
+                    <hr style="margin: 12px 0;">
+                    <p><strong>Previous Balance:</strong> ₹${advancedData.prevBalance || 0}</p>
+                    <p><strong>Advance:</strong> ₹${advancedData.advance || 0}</p>
+                    <p><strong>Salary Paid:</strong> ₹${advancedData.salaryPaid || 0}</p>
+                  </div>
+                `,
+                confirmButtonColor: '#2563eb'
+              });
+            })
+            .withFailureHandler(err => {
+              Swal.fire({
+                icon: 'error',
+                title: 'Error',
+                text: 'Failed to fetch advanced calculations: ' + err.message,
+                confirmButtonColor: '#2563eb'
+              });
+            })
+            .getAdvancedData(employeeId, monthYear);
+        })
+        .withFailureHandler(err => {
+          Swal.fire({
+            icon: 'error',
+            title: 'Error',
+            text: 'Failed to fetch attendance data: ' + err.message,
+            confirmButtonColor: '#2563eb'
+          });
+        })
+        .getAttendanceData(employeeId, monthYear);
+    }
+
+    function calculateGrossSalary() {
+      const salaryMonth = parseFloat(document.getElementById("salaryMonthInput").value) || 0;
+      const totalDuty = parseFloat(document.getElementById("totalDutyInput").value) || 0;
+      const totalOT = parseFloat(document.getElementById("totalOTInput").value) || 0;
+
+      const grossSalary = (salaryMonth * totalDuty / 26) + (salaryMonth * totalOT / 208);
+
+      document.getElementById("grossSalaryInput").value = grossSalary.toFixed(2);
+
+      calculateBalanceToBePaid();
+    }
+
+    function calculateBalanceToBePaid() {
+      const prevBalance = parseFloat(document.getElementById("prevBalanceInput").value) || 0;
+      const grossSalary = parseFloat(document.getElementById("grossSalaryInput").value) || 0;
+      const advance = parseFloat(document.getElementById("advanceInput").value) || 0;
+      const salaryPaid = parseFloat(document.getElementById("salaryPaidInput").value) || 0;
+
+      const balanceToBePaid = prevBalance + grossSalary - advance - salaryPaid;
+
+      const balanceInput = document.getElementById("balanceToBePaidInput");
+      balanceInput.value = balanceToBePaid.toFixed(2);
+
+      if (balanceToBePaid < 0) {
+        balanceInput.style.background = '#fee2e2';
+        balanceInput.style.color = '#dc2626';
+        balanceInput.style.fontWeight = '600';
+      } else {
+        balanceInput.style.background = '#e8f4f8';
+        balanceInput.style.color = '';
+        balanceInput.style.fontWeight = '';
+      }
+    }
+
+    function updatePreviousBalanceStyle() {
+      const prevBalanceInput = document.getElementById("prevBalanceInput");
+      const prevBalance = parseFloat(prevBalanceInput.value) || 0;
+
+      if (prevBalance < 0) {
+        prevBalanceInput.style.background = '#fee2e2';
+        prevBalanceInput.style.color = '#dc2626';
+        prevBalanceInput.style.fontWeight = '600';
+      } else {
+        prevBalanceInput.style.background = '#e8f4f8';
+        prevBalanceInput.style.color = '';
+        prevBalanceInput.style.fontWeight = '';
+      }
+    }
+
+    function getAttendance() {
+      const employeeId = document.getElementById("accountEmployeeId").value;
+      const monthYear = document.getElementById("accountMonthYear").value;
+
+      if (!employeeId) {
+        Swal.fire({
+          icon: 'warning',
+          title: 'Missing Employee ID',
+          text: 'Please select an Employee ID first.',
+          confirmButtonColor: '#2563eb'
+        });
+        return;
+      }
+
+      if (!monthYear) {
+        Swal.fire({
+          icon: 'warning',
+          title: 'Missing Month-Year',
+          text: 'Please select a Month-Year first.',
+          confirmButtonColor: '#2563eb'
+        });
+        return;
+      }
+
+      Swal.fire({
+        title: 'Fetching Attendance...',
+        text: 'Please wait while we retrieve attendance data',
+        allowOutsideClick: false,
+        didOpen: () => {
+          Swal.showLoading();
+        }
+      });
+
+      google.script.run
+        .withSuccessHandler(data => {
+          Swal.close();
+          document.getElementById("totalDutyInput").value = data.totalDuty || 0;
+          document.getElementById("totalOTInput").value = data.totalOT || 0;
+
+          calculateGrossSalary();
+
+          Swal.fire({
+            icon: 'success',
+            title: 'Attendance Retrieved',
+            html: `
+              <div style="text-align: left; padding: 10px;">
+                <p><strong>Total Duty Days:</strong> ${data.totalDuty || 0}</p>
+                <p><strong>Total O.T. Hours:</strong> ${data.totalOT || 0}</p>
+              </div>
+            `,
+            confirmButtonColor: '#2563eb'
+          });
+        })
+        .withFailureHandler(err => {
+          Swal.fire({
+            icon: 'error',
+            title: 'Error',
+            text: 'Failed to fetch attendance data: ' + err.message,
+            confirmButtonColor: '#2563eb'
+          });
+        })
+        .getAttendanceData(employeeId, monthYear);
+    }
+
+    function getAdvancedCalculations() {
+      const employeeId = document.getElementById("accountEmployeeId").value;
+      const monthYear = document.getElementById("accountMonthYear").value;
+
+      if (!employeeId) {
+        Swal.fire({
+          icon: 'warning',
+          title: 'Missing Employee ID',
+          text: 'Please select an Employee ID first.',
+          confirmButtonColor: '#2563eb'
+        });
+        return;
+      }
+
+      if (!monthYear) {
+        Swal.fire({
+          icon: 'warning',
+          title: 'Missing Month-Year',
+          text: 'Please select a Month-Year first.',
+          confirmButtonColor: '#2563eb'
+        });
+        return;
+      }
+
+      Swal.fire({
+        title: 'Calculating...',
+        text: 'Please wait while we calculate Advanced and Salary Paid from Journal',
+        allowOutsideClick: false,
+        didOpen: () => {
+          Swal.showLoading();
+        }
+      });
+
+      google.script.run
+        .withSuccessHandler(data => {
+          Swal.close();
+          document.getElementById("advanceInput").value = data.advance || 0;
+          document.getElementById("salaryPaidInput").value = data.salaryPaid || 0;
+          document.getElementById("prevBalanceInput").value = data.prevBalance || 0;
+
+          updatePreviousBalanceStyle();
+          calculateBalanceToBePaid();
+
+          const prevBalanceColor = (data.prevBalance || 0) < 0 ? '#dc2626' : '#333';
+
+          Swal.fire({
+            icon: 'success',
+            title: 'Calculations Complete',
+            html: `
+              <div style="text-align: left; padding: 10px;">
+                <p><strong>Previous Balance:</strong> <span style="color: ${prevBalanceColor}; font-weight: ${(data.prevBalance || 0) < 0 ? '600' : 'normal'};">₹${data.prevBalance || 0}</span></p>
+                <p><strong>Advance (excluding 15th):</strong> ₹${data.advance || 0}</p>
+                <p><strong>Salary Paid (15th of next month):</strong> ₹${data.salaryPaid || 0}</p>
+                <hr style="margin: 12px 0;">
+                <p style="font-size: 12px; color: #666;">
+                  <em>Note: Previous Balance is from the previous month's Account sheet.<br>
+                  Advance includes all transactions except those on the 15th.<br>
+                  Salary Paid shows the 15th day payment from the following month.</em>
+                </p>
+              </div>
+            `,
+            confirmButtonColor: '#2563eb'
+          });
+        })
+        .withFailureHandler(err => {
+          Swal.fire({
+            icon: 'error',
+            title: 'Error',
+            text: 'Failed to calculate advanced data: ' + err.message,
+            confirmButtonColor: '#2563eb'
+          });
+        })
+        .getAdvancedData(employeeId, monthYear);
+    }
+
+    function fetchEmployee(empId, formType) {
+      if (!empId) return;
+
+      const loadingId = formType === 'journal' ? 'journalEmployeeLoading' : 'accountEmployeeLoading';
+      const dropdownId = formType === 'journal' ? 'journalEmployeeId' : 'accountEmployeeId';
+      const loadingElement = document.getElementById(loadingId);
+      const dropdownElement = document.getElementById(dropdownId);
+
+      if (loadingElement) {
+        loadingElement.classList.add('show');
+        dropdownElement.disabled = true;
+      }
+
+      google.script.run
+        .withSuccessHandler(emp => {
+          if (loadingElement) {
+            loadingElement.classList.remove('show');
+            dropdownElement.disabled = false;
+          }
+
+          if (emp) {
+            let infoHtml = `
+              <p><strong>Name:</strong> ${emp.employeeName}</p>
+              <p><strong>Category:</strong> ${emp.category}</p>
+              <p><strong>Adhar:</strong> ${emp.adhar}</p>
+              <p><strong>Mobile:</strong> ${emp.mobile}</p>
+            `;
+
+            if (formType === "journal") {
+              document.getElementById("journalInfo").innerHTML = infoHtml;
+              document.getElementById("journalInfo").classList.remove("hidden");
+              document.querySelector("#journalForm [name=employeeName]").value = emp.employeeName || "";
+              document.querySelector("#journalForm [name=category]").value = emp.category || "";
+              document.querySelector("#journalForm [name=employeeAdhar]").value = emp.adhar || "";
+              document.querySelector("#journalForm [name=mobile]").value = emp.mobile || "";
+            } else {
+              document.getElementById("accountInfo").innerHTML = infoHtml;
+              document.getElementById("accountInfo").classList.remove("hidden");
+              document.querySelector("#accountForm [name=employeeName]").value = emp.employeeName || "";
+              document.querySelector("#accountForm [name=category]").value = emp.category || "";
+              document.querySelector("#accountForm [name=adhar]").value = emp.adhar || "";
+              document.querySelector("#accountForm [name=mobile]").value = emp.mobile || "";
+            }
+          } else {
+            Swal.fire({
+              icon: 'warning',
+              title: 'Employee Not Found',
+              text: 'Employee ID not found in Employees sheet.',
+              confirmButtonColor: '#2563eb'
+            });
+          }
+        })
+        .withFailureHandler(err => {
+          if (loadingElement) {
+            loadingElement.classList.remove('show');
+            dropdownElement.disabled = false;
+          }
+          Swal.fire({
+            icon: 'error',
+            title: 'Error',
+            text: 'Failed to fetch employee details: ' + err.message,
+            confirmButtonColor: '#2563eb'
+          });
+        })
+        .getEmployeeDetails(empId);
+    }
+
+    // Auto-fill Month-Year (hidden field) in Journal Form
+    function autoFillMonthYear(dateInput) {
+      if (!dateInput.value) return;
+      const date = new Date(dateInput.value);
+      const options = { month: 'short', year: 'numeric' };
+      let formatted = date.toLocaleDateString('en-US', options).replace(" ", "-");
+      document.querySelector("#journalForm [name=monthYear]").value = formatted;
+    }
+
+    function confirmJournal() {
+      const form = document.getElementById("journalForm");
+      const data = Object.fromEntries(new FormData(form).entries());
+      const isUpdateMode = document.getElementById("journalRowIndex").value !== "";
+
+      if (!data.employeeId || !data.datePayment || !data.transactionMoney || !data.transactionMode) {
+        Swal.fire({
+          icon: 'error',
+          title: 'Missing Information',
+          text: 'Please fill in all required fields.',
+          confirmButtonColor: '#2563eb'
+        });
+        return;
+      }
+
+      const actionText = isUpdateMode ? 'Update' : 'Submit';
+
+      Swal.fire({
+        title: `Confirm Journal ${actionText}`,
+        html: `
+          <div style="text-align: left; padding: 10px;">
+            <p><strong>Employee:</strong> ${data.employeeName} (${data.employeeId})</p>
+            <p><strong>Category:</strong> ${data.category}</p>
+            <p><strong>Mobile:</strong> ${data.mobile}</p>
+            <p><strong>Date:</strong> ${data.datePayment}</p>
+            <p><strong>Amount:</strong> ₹${data.transactionMoney}</p>
+            <p><strong>Mode:</strong> ${data.transactionMode}</p>
+            <p><strong>Note:</strong> ${data.transactionNote || 'N/A'}</p>
+            <p><strong>Month-Year:</strong> ${data.monthYear}</p>
+          </div>
+        `,
+        icon: 'question',
+        showCancelButton: true,
+        confirmButtonColor: '#2563eb',
+        cancelButtonColor: '#d33',
+        confirmButtonText: `Yes, ${actionText}`,
+        cancelButtonText: 'Cancel'
+      }).then((result) => {
+        if (result.isConfirmed) {
+          Swal.fire({
+            title: `${actionText}ing...`,
+            allowOutsideClick: false,
+            didOpen: () => {
+              Swal.showLoading();
+            }
+          });
+
+          if (isUpdateMode) {
+            const rowIndex = parseInt(document.getElementById("journalRowIndex").value);
+            google.script.run.withSuccessHandler(msg => {
+              Swal.fire({
+                icon: 'success',
+                title: 'Success!',
+                text: msg,
+                confirmButtonColor: '#2563eb'
+              }).then(() => {
+                form.reset();
+                document.getElementById("journalInfo").classList.add("hidden");
+                document.getElementById("journalRowIndex").value = "";
+                document.getElementById("journalSubmitBtn").textContent = "💾 Submit Journal Entry";
+                document.getElementById("journalCancelBtn").classList.add("hidden");
+                filterJournalHistory(true);
+              });
+            }).withFailureHandler(err => {
+              Swal.fire({
+                icon: 'error',
+                title: 'Update Failed',
+                text: err.message || 'An error occurred while updating the journal entry.',
+                confirmButtonColor: '#2563eb'
+              });
+            }).updateJournal(data, rowIndex);
+          } else {
+            google.script.run.withSuccessHandler(msg => {
+              Swal.fire({
+                icon: 'success',
+                title: 'Success!',
+                text: msg,
+                confirmButtonColor: '#2563eb'
+              });
+              form.reset();
+              document.getElementById("journalInfo").classList.add("hidden");
+            }).withFailureHandler(err => {
+              Swal.fire({
+                icon: 'error',
+                title: 'Submission Failed',
+                text: err.message || 'An error occurred while submitting the journal entry.',
+                confirmButtonColor: '#2563eb'
+              });
+            }).submitJournal(data);
+          }
+        }
+      });
+    }
+
+    function confirmAccount() {
+      const form = document.getElementById("accountForm");
+      const data = Object.fromEntries(new FormData(form).entries());
+
+      if (!data.employeeId || !data.monthYear || !data.salaryMonth || !data.grossSalary || !data.salaryPaid) {
+        Swal.fire({
+          icon: 'error',
+          title: 'Missing Information',
+          text: 'Please fill in all required fields.',
+          confirmButtonColor: '#2563eb'
+        });
+        return;
+      }
+
+      Swal.fire({
+        title: 'Confirm Account Entry',
+        html: `
+          <div style="text-align: left; padding: 10px;">
+            <p><strong>Employee:</strong> ${data.employeeName} (${data.employeeId})</p>
+            <p><strong>Category:</strong> ${data.category}</p>
+            <p><strong>Mobile:</strong> ${data.mobile}</p>
+            <p><strong>Month-Year:</strong> ${data.monthYear}</p>
+            <p><strong>Total Duty:</strong> ${data.totalDuty}</p>
+            <p><strong>Total OT:</strong> ${data.totalOT}</p>
+            <p><strong>Salary/Month:</strong> ₹${data.salaryMonth}</p>
+            <p><strong>Gross Salary:</strong> ₹${data.grossSalary}</p>
+            <p><strong>Advance:</strong> ₹${data.advance || 0}</p>
+            <p><strong>Salary Paid:</strong> ₹${data.salaryPaid}</p>
+            <p><strong>Balance:</strong> ₹${data.balanceToBePaid || 0}</p>
+          </div>
+        `,
+        icon: 'question',
+        showCancelButton: true,
+        confirmButtonColor: '#2563eb',
+        cancelButtonColor: '#d33',
+        confirmButtonText: 'Yes, Submit',
+        cancelButtonText: 'Cancel'
+      }).then((result) => {
+        if (result.isConfirmed) {
+          Swal.fire({
+            title: 'Submitting...',
+            allowOutsideClick: false,
+            didOpen: () => {
+              Swal.showLoading();
+            }
+          });
+
+          google.script.run.withSuccessHandler(msg => {
+            Swal.fire({
+              icon: 'success',
+              title: 'Success!',
+              text: msg,
+              confirmButtonColor: '#2563eb'
+            });
+            form.reset();
+            document.getElementById("accountInfo").classList.add("hidden");
+          }).withFailureHandler(err => {
+            Swal.fire({
+              icon: 'error',
+              title: 'Submission Failed',
+              text: err.message || 'An error occurred while submitting the account entry.',
+              confirmButtonColor: '#2563eb'
+            });
+          }).submitAccount(data);
+        }
+      });
+    }
+
+    function fetchAccountHistoryEmployee() {
+      const empId = document.getElementById("accountHistoryEmployeeId").value;
+      if (!empId) {
+        document.getElementById("accountHistoryEmpInfo").classList.add("hidden");
+        return;
+      }
+
+      Swal.fire({
+        title: 'Loading...',
+        text: 'Fetching employee details',
+        allowOutsideClick: false,
+        didOpen: () => {
+          Swal.showLoading();
+        }
+      });
+
+      google.script.run
+        .withSuccessHandler(employee => {
+          Swal.close();
+          if (employee) {
+            const infoBox = document.getElementById("accountHistoryEmpInfo");
+            infoBox.innerHTML = `
+              <div><strong>Employee Name:</strong> ${employee.employeeName || 'N/A'}</div>
+              <div><strong>Category:</strong> ${employee.category || 'N/A'}</div>
+              <div><strong>Adhar Number:</strong> ${employee.adhar || 'N/A'}</div>
+              <div><strong>Mobile Number:</strong> ${employee.mobile || 'N/A'}</div>
+            `;
+            infoBox.classList.remove("hidden");
+
+            fetchAccountHistory();
+          }
+        })
+        .withFailureHandler(err => {
+          Swal.fire({
+            icon: 'error',
+            title: 'Error',
+            text: 'Failed to fetch employee details: ' + err.message,
+            confirmButtonColor: '#2563eb'
+          });
+        })
+        .getEmployeeDetails(empId);
+    }
+
+    let fullAccountHistoryData = [];
+
+    function fetchAccountHistory() {
+      const empId = document.getElementById("accountHistoryEmployeeId").value;
+      if (!empId) return;
+
+      Swal.fire({
+        title: 'Loading...',
+        text: 'Fetching account history',
+        allowOutsideClick: false,
+        didOpen: () => {
+          Swal.showLoading();
+        }
+      });
+
+      google.script.run
+        .withSuccessHandler(data => {
+          Swal.close();
+          fullAccountHistoryData = data;
+          displayAccountHistory(data);
+        })
+        .withFailureHandler(err => {
+          Swal.fire({
+            icon: 'error',
+            title: 'Error',
+            text: 'Failed to fetch account history: ' + err.message,
+            confirmButtonColor: '#2563eb'
+          });
+        })
+        .getAccountHistory(empId, null, false, null, null);
+    }
+
+    function displayAccountHistory(data) {
+      const tbody = document.getElementById("accountHistoryBody");
+      const resultsCountDiv = document.getElementById("accountResultsCount");
+
+      if (!data || data.length === 0) {
+        tbody.innerHTML = '<tr><td colspan="13" class="no-data">No account records found</td></tr>';
+        resultsCountDiv.style.display = 'none';
+        return;
+      }
+
+      resultsCountDiv.textContent = `📊 Found ${data.length} record${data.length !== 1 ? 's' : ''}`;
+      resultsCountDiv.style.display = 'block';
+
+      let html = '';
+      data.forEach((row, index) => {
+        const prevBalance = parseFloat(row["Previous Balance"]) || 0;
+        const balance = parseFloat(row["Balance to be Paid"]) || 0;
+
+        const prevBalanceStyle = prevBalance < 0 ? 'color: #dc2626; font-weight: 600;' : '';
+        const balanceStyle = balance < 0 ? 'color: #dc2626; font-weight: 600;' : '';
+
+        html += `<tr>
+          <td>${row["Employee ID"] || ""}</td>
+          <td>${row["Employee Name"] || ""}</td>
+          <td>${row["Category"] || ""}</td>
+          <td>${row["Month-Year"] || ""}</td>
+          <td>${row["Total Duty"] || 0}</td>
+          <td>${row["Total OT"] || 0}</td>
+          <td style="${prevBalanceStyle}">₹${prevBalance}</td>
+          <td>₹${row["Salary/month"] || 0}</td>
+          <td>₹${row["Gross Salary"] || 0}</td>
+          <td>₹${row["Advance"] || 0}</td>
+          <td>₹${row["Salary Paid"] || 0}</td>
+          <td style="${balanceStyle}">₹${balance}</td>
+          <td><button type="button" onclick="updateAccountRow(${index})" style="padding: 6px 12px; background: linear-gradient(135deg, #f59e0b 0%, #d97706 100%); color: white; border: none; border-radius: 6px; cursor: pointer; font-size: 13px; font-weight: 600;">✏️ Update</button></td>
+        </tr>`;
+      });
+
+      tbody.innerHTML = html;
+    }
+
+    function switchAccountFilterMode(mode) {
+      const singleBtn = document.getElementById("accountSingleMonthBtn");
+      const rangeBtn = document.getElementById("accountMonthRangeBtn");
+      const singleFilter = document.getElementById("singleMonthFilter");
+      const rangeFilter = document.getElementById("rangeMonthFilter");
+
+      if (mode === 'single') {
+        singleBtn.classList.add('active');
+        rangeBtn.classList.remove('active');
+        singleFilter.style.display = 'block';
+        rangeFilter.style.display = 'none';
+        document.getElementById("fromMonthYearSelect").value = '';
+        document.getElementById("toMonthYearSelect").value = '';
+      } else {
+        singleBtn.classList.remove('active');
+        rangeBtn.classList.add('active');
+        singleFilter.style.display = 'none';
+        rangeFilter.style.display = 'block';
+        document.getElementById("singleMonthYearSelect").value = '';
+      }
+    }
+
+    function filterAccountHistory() {
+      const empId = document.getElementById("accountHistoryEmployeeId").value;
+      if (!empId) {
+        Swal.fire({
+          icon: 'warning',
+          title: 'No Employee Selected',
+          text: 'Please select an employee first.',
+          confirmButtonColor: '#2563eb'
+        });
+        return;
+      }
+
+      const isSingleMode = document.getElementById("accountSingleMonthBtn").classList.contains('active');
+      let monthYearFilter = null;
+      let isRange = false;
+      let fromMonthYear = null;
+      let toMonthYear = null;
+
+      if (isSingleMode) {
+        monthYearFilter = document.getElementById("singleMonthYearSelect").value;
+        if (!monthYearFilter) {
+          Swal.fire({
+            icon: 'warning',
+            title: 'No Month Selected',
+            text: 'Please select a month-year.',
+            confirmButtonColor: '#2563eb'
+          });
+          return;
+        }
+      } else {
+        isRange = true;
+        fromMonthYear = document.getElementById("fromMonthYearSelect").value;
+        toMonthYear = document.getElementById("toMonthYearSelect").value;
+        if (!fromMonthYear || !toMonthYear) {
+          Swal.fire({
+            icon: 'warning',
+            title: 'Incomplete Range',
+            text: 'Please select both from and to month-year.',
+            confirmButtonColor: '#2563eb'
+          });
+          return;
+        }
+      }
+
+      Swal.fire({
+        title: 'Filtering...',
+        text: 'Please wait',
+        allowOutsideClick: false,
+        didOpen: () => {
+          Swal.showLoading();
+        }
+      });
+
+      google.script.run
+        .withSuccessHandler(data => {
+          Swal.close();
+          fullAccountHistoryData = data;
+          displayAccountHistory(data);
+
+          if (data.length === 0) {
+            Swal.fire({
+              icon: 'info',
+              title: 'No Results',
+              text: 'No records found for the selected filter.',
+              confirmButtonColor: '#2563eb'
+            });
+          }
+        })
+        .withFailureHandler(err => {
+          Swal.fire({
+            icon: 'error',
+            title: 'Error',
+            text: 'Failed to filter account history: ' + err.message,
+            confirmButtonColor: '#2563eb'
+          });
+        })
+        .getAccountHistory(empId, monthYearFilter, isRange, fromMonthYear, toMonthYear);
+    }
+
+    function clearAccountFilters() {
+      document.getElementById("singleMonthYearSelect").value = '';
+      document.getElementById("fromMonthYearSelect").value = '';
+      document.getElementById("toMonthYearSelect").value = '';
+      displayAccountHistory(fullAccountHistoryData);
+    }
+
+    function downloadAccountAsExcel() {
+      const tbody = document.getElementById("accountHistoryBody");
+      if (tbody.querySelector('.no-data')) {
+        Swal.fire({
+          icon: 'warning',
+          title: 'No Data',
+          text: 'There is no data to download.',
+          confirmButtonColor: '#2563eb'
+        });
+        return;
+      }
+
+      if (!fullAccountHistoryData || fullAccountHistoryData.length === 0) {
+        Swal.fire({
+          icon: 'warning',
+          title: 'No Data',
+          text: 'There is no data to download.',
+          confirmButtonColor: '#2563eb'
+        });
+        return;
+      }
+
+      const empId = document.getElementById("accountHistoryEmployeeId").value;
+      const employee = fullAccountHistoryData[0];
+      const timestamp = new Date().toISOString().slice(0, 10);
+
+      const headers = [
+        'Employee ID', 'Employee Name', 'Category', 'Adhar Number', 'Mobile Number',
+        'Month-Year', 'Total Duty', 'Total OT', 'Previous Balance', 'Salary/month',
+        'Gross Salary', 'Advance', 'Salary Paid', 'Balance to be Paid'
+      ];
+
+      let csvContent = headers.join(',') + '\n';
+
+      fullAccountHistoryData.forEach(row => {
+        const rowData = [
+          row["Employee ID"] || '',
+          row["Employee Name"] || '',
+          row["Category"] || '',
+          row["Adhar Number"] || '',
+          row["Mobile Number"] || '',
+          row["Month-Year"] || '',
+          row["Total Duty"] || 0,
+          row["Total OT"] || 0,
+          row["Previous Balance"] || 0,
+          row["Salary/month"] || 0,
+          row["Gross Salary"] || 0,
+          row["Advance"] || 0,
+          row["Salary Paid"] || 0,
+          row["Balance to be Paid"] || 0
+        ];
+        csvContent += rowData.join(',') + '\n';
+      });
+
+      const blob = new Blob([csvContent], { type: 'text/csv;charset=utf-8;' });
+      const link = document.createElement('a');
+      const url = URL.createObjectURL(blob);
+
+      link.setAttribute('href', url);
+      link.setAttribute('download', `Account_History_${empId}_${timestamp}.csv`);
+      link.style.visibility = 'hidden';
+      document.body.appendChild(link);
+      link.click();
+      document.body.removeChild(link);
+
+      Swal.fire({
+        icon: 'success',
+        title: 'Download Started',
+        text: 'Your Excel file is downloading!',
+        confirmButtonColor: '#2563eb',
+        timer: 2000
+      });
+    }
+
+    function downloadAccountAsPDF() {
+      const tbody = document.getElementById("accountHistoryBody");
+      if (tbody.querySelector('.no-data')) {
+        Swal.fire({
+          icon: 'warning',
+          title: 'No Data',
+          text: 'There is no data to download.',
+          confirmButtonColor: '#2563eb'
+        });
+        return;
+      }
+
+      if (!fullAccountHistoryData || fullAccountHistoryData.length === 0) {
+        Swal.fire({
+          icon: 'warning',
+          title: 'No Data',
+          text: 'There is no data to download.',
+          confirmButtonColor: '#2563eb'
+        });
+        return;
+      }
+
+      Swal.fire({
+        title: 'Generating PDF...',
+        text: 'Please wait',
+        allowOutsideClick: false,
+        didOpen: () => {
+          Swal.showLoading();
+        }
+      });
+
+      const empId = document.getElementById("accountHistoryEmployeeId").value;
+      const employee = fullAccountHistoryData[0];
+      const timestamp = new Date().toISOString().slice(0, 10);
+
+      let htmlContent = `
+        <!DOCTYPE html>
+        <html>
+        <head>
+          <meta charset="utf-8">
+          <title>Account History Report</title>
+          <style>
+            body { font-family: Arial, sans-serif; padding: 20px; }
+            h1 { color: #2563eb; text-align: center; margin-bottom: 30px; }
+            .info { background: #f8fafc; padding: 15px; border-radius: 8px; margin-bottom: 20px; }
+            .info p { margin: 5px 0; }
+            table { width: 100%; border-collapse: collapse; margin-top: 20px; font-size: 12px; }
+            th { background: #2563eb; color: white; padding: 10px 8px; text-align: left; }
+            td { border: 1px solid #e2e8f0; padding: 8px; }
+            tr:nth-child(even) { background: #f8fafc; }
+          </style>
+        </head>
+        <body>
+          <h1>Account History Report</h1>
+          <div class="info">
+            <p><strong>Employee ID:</strong> ${employee["Employee ID"] || 'N/A'}</p>
+            <p><strong>Employee Name:</strong> ${employee["Employee Name"] || 'N/A'}</p>
+            <p><strong>Category:</strong> ${employee["Category"] || 'N/A'}</p>
+            <p><strong>Report Date:</strong> ${new Date().toLocaleDateString()}</p>
+          </div>
+          <table>
+            <thead>
+              <tr>
+                <th>Month-Year</th>
+                <th>Total Duty</th>
+                <th>Total OT</th>
+                <th>Prev Balance</th>
+                <th>Salary/Month</th>
+                <th>Gross Salary</th>
+                <th>Advance</th>
+                <th>Salary Paid</th>
+                <th>Balance</th>
+              </tr>
+            </thead>
+            <tbody>
+      `;
+
+      fullAccountHistoryData.forEach(row => {
+        htmlContent += `
+          <tr>
+            <td>${row["Month-Year"] || ''}</td>
+            <td>${row["Total Duty"] || 0}</td>
+            <td>${row["Total OT"] || 0}</td>
+            <td>₹${row["Previous Balance"] || 0}</td>
+            <td>₹${row["Salary/month"] || 0}</td>
+            <td>₹${row["Gross Salary"] || 0}</td>
+            <td>₹${row["Advance"] || 0}</td>
+            <td>₹${row["Salary Paid"] || 0}</td>
+            <td>₹${row["Balance to be Paid"] || 0}</td>
+          </tr>
+        `;
+      });
+
+      htmlContent += `
+            </tbody>
+          </table>
+        </body>
+        </html>
+      `;
+
+      const printWindow = window.open('', '_blank');
+      printWindow.document.write(htmlContent);
+      printWindow.document.close();
+
+      setTimeout(() => {
+        printWindow.print();
+        Swal.close();
+        Swal.fire({
+          icon: 'success',
+          title: 'PDF Ready',
+          text: 'Print dialog opened. Choose "Save as PDF" to download.',
+          confirmButtonColor: '#2563eb'
+        });
+      }, 500);
+    }
+
+    let fullJournalHistoryData = [];
+
+    function displayJournalHistory(data) {
+      console.log("displayJournalHistory called with data:", data);
+      const tbody = document.getElementById("journalHistoryBody");
+      const resultsCountDiv = document.getElementById("journalResultsCount");
+
+      if (!tbody) {
+        console.error("Table body element not found");
+        return;
+      }
+
+      if (!data || data.length === 0) {
+        console.log("No data to display");
+        tbody.innerHTML = '<tr><td colspan="9" class="no-data">No journal records found</td></tr>';
+        resultsCountDiv.style.display = 'none';
+        return;
+      }
+
+      console.log("Displaying", data.length, "records");
+      resultsCountDiv.textContent = `📊 Found ${data.length} record${data.length !== 1 ? 's' : ''}`;
+      resultsCountDiv.style.display = 'block';
+
+      let html = '';
+      data.forEach((row, index) => {
+        console.log("Row", index, ":", row);
+        html += `<tr>
+          <td>${row["Employee ID"] || ""}</td>
+          <td>${row["Employee Name"] || ""}</td>
+          <td>${row["Category"] || ""}</td>
+          <td>${row["Date of Payment"] || ""}</td>
+          <td>₹${row["Transaction Money"] || 0}</td>
+          <td>${row["Transaction Mode"] || row["Transaction Note"] || ""}</td>
+          <td>${row["Transaction Note Details"] || ""}</td>
+          <td>${row["Month-Year"] || ""}</td>
+          <td><button type="button" onclick="updateJournalRow(${index})" style="padding: 6px 12px; background: linear-gradient(135deg, #f59e0b 0%, #d97706 100%); color: white; border: none; border-radius: 6px; cursor: pointer; font-size: 13px; font-weight: 600;">✏️ Update</button></td>
+        </tr>`;
+      });
+
+      console.log("Setting table HTML with", data.length, "rows");
+      tbody.innerHTML = html;
+      console.log("Table updated successfully");
+    }
+
+    function updateJournalRow(index) {
+      const row = fullJournalHistoryData[index];
+      if (!row) {
+        Swal.fire({
+          icon: 'error',
+          title: 'Error',
+          text: 'Row data not found.',
+          confirmButtonColor: '#2563eb'
+        });
+        return;
+      }
+
+      document.getElementById("journalEmployeeId").value = row["Employee ID"] || "";
+      fetchEmployee(row["Employee ID"], 'journal');
+
+      const dateValue = row["Date of Payment"] || "";
+      document.querySelector("#journalForm [name=datePayment]").value = dateValue;
+
+      if (dateValue) {
+        const dateInput = document.querySelector("#journalForm [name=datePayment]");
+        autoFillMonthYear(dateInput);
+      }
+
+      document.querySelector("#journalForm [name=transactionMoney]").value = row["Transaction Money"] || "";
+      document.querySelector("#journalForm [name=transactionMode]").value = row["Transaction Mode"] || row["Transaction Note"] || "";
+      document.querySelector("#journalForm [name=transactionNote]").value = row["Transaction Note Details"] || "";
+      document.getElementById("journalRowIndex").value = index;
+
+      document.getElementById("journalSubmitBtn").textContent = "💾 Update Journal Entry";
+      document.getElementById("journalCancelBtn").classList.remove("hidden");
+
+      const transactionSection = document.querySelector('.journal-section:nth-of-type(2)');
+      if (transactionSection) {
+        transactionSection.scrollIntoView({ behavior: 'smooth', block: 'center' });
+      }
+
+      // Swal.fire({
+      //   icon: 'info',
+      //   title: 'Update Mode',
+      //   text: 'The form has been populated with the selected record. Make your changes and click "Update Journal Entry".',
+      //   confirmButtonColor: '#2563eb'
+      // });
+    }
+
+    function cancelJournalUpdate() {
+      document.getElementById("journalForm").reset();
+      document.getElementById("journalInfo").classList.add("hidden");
+      document.getElementById("journalRowIndex").value = "";
+      document.getElementById("journalSubmitBtn").textContent = "💾 Submit Journal Entry";
+      document.getElementById("journalCancelBtn").classList.add("hidden");
+
+      Swal.fire({
+        icon: 'success',
+        title: 'Cancelled',
+        text: 'Update cancelled. Form has been reset.',
+        confirmButtonColor: '#2563eb',
+        timer: 2000
+      });
+    }
+
+    function switchJournalFilterMode(mode) {
+      const specificBtn = document.getElementById("journalSpecificDateBtn");
+      const rangeBtn = document.getElementById("journalDateRangeBtn");
+      const specificFilter = document.getElementById("specificDateFilter");
+      const rangeFilter = document.getElementById("rangeDateFilter");
+
+      if (mode === 'specific') {
+        specificBtn.classList.add('active');
+        rangeBtn.classList.remove('active');
+        specificFilter.style.display = 'block';
+        rangeFilter.style.display = 'none';
+        document.getElementById("fromDateInput").value = '';
+        document.getElementById("toDateInput").value = '';
+      } else {
+        specificBtn.classList.remove('active');
+        rangeBtn.classList.add('active');
+        specificFilter.style.display = 'none';
+        rangeFilter.style.display = 'block';
+        document.getElementById("specificDateInput").value = '';
+      }
+    }
+
+    function filterJournalHistory(skipValidation = false) {
+      const isSpecificMode = document.getElementById("journalSpecificDateBtn").classList.contains('active');
+      let specificDate = null;
+      let fromDate = null;
+      let toDate = null;
+
+      if (isSpecificMode) {
+        specificDate = document.getElementById("specificDateInput").value;
+        if (!specificDate && !skipValidation) {
+          Swal.fire({
+            icon: 'warning',
+            title: 'No Date Selected',
+            text: 'Please select a date.',
+            confirmButtonColor: '#2563eb'
+          });
+          return;
+        }
+        console.log("Filtering by specific date:", specificDate);
+      } else {
+        fromDate = document.getElementById("fromDateInput").value;
+        toDate = document.getElementById("toDateInput").value;
+        if ((!fromDate || !toDate) && !skipValidation) {
+          Swal.fire({
+            icon: 'warning',
+            title: 'Incomplete Range',
+            text: 'Please select both from and to dates.',
+            confirmButtonColor: '#2563eb'
+          });
+          return;
+        }
+        console.log("Filtering by date range:", fromDate, "to", toDate);
+      }
+
+      Swal.fire({
+        title: 'Filtering...',
+        text: 'Please wait',
+        allowOutsideClick: false,
+        didOpen: () => {
+          Swal.showLoading();
+        }
+      });
+
+      google.script.run
+        .withSuccessHandler(data => {
+          console.log("Filter results received:", data);
+          console.log("Number of filtered records:", data ? data.length : 0);
+          Swal.close();
+          fullJournalHistoryData = data || [];
+          displayJournalHistory(data || []);
+
+          if (!data || data.length === 0) {
+            Swal.fire({
+              icon: 'info',
+              title: 'No Results',
+              text: 'No records found for the selected filter.',
+              confirmButtonColor: '#2563eb'
+            });
+          }
+        })
+        .withFailureHandler(err => {
+          console.error("Filter error:", err);
+          Swal.fire({
+            icon: 'error',
+            title: 'Error',
+            text: 'Failed to filter journal history: ' + err.message,
+            confirmButtonColor: '#2563eb'
+          });
+        })
+        .getJournalHistory(null, specificDate, fromDate, toDate);
+    }
+
+    function clearJournalFilters() {
+      document.getElementById("specificDateInput").value = '';
+      document.getElementById("fromDateInput").value = '';
+      document.getElementById("toDateInput").value = '';
+      displayJournalHistory(fullJournalHistoryData);
+    }
+
+    function downloadJournalAsExcel() {
+      const tbody = document.getElementById("journalHistoryBody");
+      if (tbody.querySelector('.no-data')) {
+        Swal.fire({
+          icon: 'warning',
+          title: 'No Data',
+          text: 'There is no data to download.',
+          confirmButtonColor: '#2563eb'
+        });
+        return;
+      }
+
+      if (!fullJournalHistoryData || fullJournalHistoryData.length === 0) {
+        Swal.fire({
+          icon: 'warning',
+          title: 'No Data',
+          text: 'There is no data to download.',
+          confirmButtonColor: '#2563eb'
+        });
+        return;
+      }
+
+      const timestamp = new Date().toISOString().slice(0, 10);
+
+      const headers = [
+        'Employee ID', 'Employee Name', 'Category', 'Employee Adhar Number',
+        'Mobile Number', 'Date of Payment', 'Transaction Money', 'Transaction Mode', 'Transaction Note Details', 'Month-Year'
+      ];
+
+      let csvContent = headers.join(',') + '\n';
+
+      fullJournalHistoryData.forEach(row => {
+        const rowData = [
+          row["Employee ID"] || '',
+          row["Employee Name"] || '',
+          row["Category"] || '',
+          row["Employee Adhar Number"] || '',
+          row["Mobile Number"] || '',
+          row["Date of Payment"] || '',
+          row["Transaction Money"] || 0,
+          row["Transaction Mode"] || row["Transaction Note"] || '',
+          row["Transaction Note Details"] || '',
+          row["Month-Year"] || ''
+        ];
+        csvContent += rowData.join(',') + '\n';
+      });
+
+      const blob = new Blob([csvContent], { type: 'text/csv;charset=utf-8;' });
+      const link = document.createElement('a');
+      const url = URL.createObjectURL(blob);
+
+      link.setAttribute('href', url);
+      link.setAttribute('download', `Journal_History_${timestamp}.csv`);
+      link.style.visibility = 'hidden';
+      document.body.appendChild(link);
+      link.click();
+      document.body.removeChild(link);
+
+      Swal.fire({
+        icon: 'success',
+        title: 'Download Started',
+        text: 'Your Excel file is downloading!',
+        confirmButtonColor: '#2563eb',
+        timer: 2000
+      });
+    }
+
+    function downloadJournalAsPDF() {
+      const tbody = document.getElementById("journalHistoryBody");
+      if (tbody.querySelector('.no-data')) {
+        Swal.fire({
+          icon: 'warning',
+          title: 'No Data',
+          text: 'There is no data to download.',
+          confirmButtonColor: '#2563eb'
+        });
+        return;
+      }
+
+      if (!fullJournalHistoryData || fullJournalHistoryData.length === 0) {
+        Swal.fire({
+          icon: 'warning',
+          title: 'No Data',
+          text: 'There is no data to download.',
+          confirmButtonColor: '#2563eb'
+        });
+        return;
+      }
+
+      Swal.fire({
+        title: 'Generating PDF...',
+        text: 'Please wait',
+        allowOutsideClick: false,
+        didOpen: () => {
+          Swal.showLoading();
+        }
+      });
+
+      const timestamp = new Date().toISOString().slice(0, 10);
+
+      let htmlContent = `
+        <!DOCTYPE html>
+        <html>
+        <head>
+          <meta charset="utf-8">
+          <title>Journal History Report</title>
+          <style>
+            body { font-family: Arial, sans-serif; padding: 20px; }
+            h1 { color: #2563eb; text-align: center; margin-bottom: 30px; }
+            .info { background: #f8fafc; padding: 15px; border-radius: 8px; margin-bottom: 20px; }
+            .info p { margin: 5px 0; }
+            table { width: 100%; border-collapse: collapse; margin-top: 20px; font-size: 12px; }
+            th { background: #2563eb; color: white; padding: 10px 8px; text-align: left; }
+            td { border: 1px solid #e2e8f0; padding: 8px; }
+            tr:nth-child(even) { background: #f8fafc; }
+          </style>
+        </head>
+        <body>
+          <h1>Journal History Report</h1>
+          <div class="info">
+            <p><strong>Report Date:</strong> ${new Date().toLocaleDateString()}</p>
+            <p><strong>Total Records:</strong> ${fullJournalHistoryData.length}</p>
+          </div>
+          <table>
+            <thead>
+              <tr>
+                <th>Employee ID</th>
+                <th>Employee Name</th>
+                <th>Category</th>
+                <th>Date of Payment</th>
+                <th>Transaction Amount</th>
+                <th>Transaction Mode</th>
+                <th>Transaction Note</th>
+                <th>Month-Year</th>
+              </tr>
+            </thead>
+            <tbody>
+      `;
+
+      fullJournalHistoryData.forEach(row => {
+        htmlContent += `
+          <tr>
+            <td>${row["Employee ID"] || ''}</td>
+            <td>${row["Employee Name"] || ''}</td>
+            <td>${row["Category"] || ''}</td>
+            <td>${row["Date of Payment"] || ''}</td>
+            <td>₹${row["Transaction Money"] || 0}</td>
+            <td>${row["Transaction Mode"] || row["Transaction Note"] || ''}</td>
+            <td>${row["Transaction Note Details"] || ''}</td>
+            <td>${row["Month-Year"] || ''}</td>
+          </tr>
+        `;
+      });
+
+      htmlContent += `
+            </tbody>
+          </table>
+        </body>
+        </html>
+      `;
+
+      const printWindow = window.open('', '_blank');
+      printWindow.document.write(htmlContent);
+      printWindow.document.close();
+
+      setTimeout(() => {
+        printWindow.print();
+        Swal.close();
+        Swal.fire({
+          icon: 'success',
+          title: 'PDF Ready',
+          text: 'Print dialog opened. Choose "Save as PDF" to download.',
+          confirmButtonColor: '#2563eb'
+        });
+      }, 500);
+    }
+
+    function updateAccountRow(index) {
+      const row = fullAccountHistoryData[index];
+      if (!row) {
+        Swal.fire({
+          icon: 'error',
+          title: 'Error',
+          text: 'Row data not found.',
+          confirmButtonColor: '#2563eb'
+        });
+        return;
+      }
+
+      document.getElementById("modalEmployeeId").value = row["Employee ID"] || "";
+      document.getElementById("modalEmployeeName").value = row["Employee Name"] || "";
+      document.getElementById("modalCategory").value = row["Category"] || "";
+      document.getElementById("modalAdhar").value = row["Adhar Number"] || "";
+      document.getElementById("modalMobile").value = row["Mobile Number"] || "";
+      document.getElementById("modalMonthYear").value = row["Month-Year"] || "";
+      document.getElementById("modalTotalDuty").value = row["Total Duty"] || 0;
+      document.getElementById("modalTotalOT").value = row["Total OT"] || 0;
+      document.getElementById("modalPrevBalance").value = row["Previous Balance"] || 0;
+      document.getElementById("modalSalaryMonth").value = row["Salary/month"] || 0;
+      document.getElementById("modalGrossSalary").value = row["Gross Salary"] || 0;
+      document.getElementById("modalAdvance").value = row["Advance"] || 0;
+      document.getElementById("modalSalaryPaid").value = row["Salary Paid"] || 0;
+      document.getElementById("modalBalanceToBePaid").value = row["Balance to be Paid"] || 0;
+
+      const infoBox = document.getElementById("modalAccountInfo");
+      infoBox.innerHTML = `
+        <p><strong>Name:</strong> ${row["Employee Name"] || ""}</p>
+        <p><strong>Category:</strong> ${row["Category"] || ""}</p>
+        <p><strong>Adhar:</strong> ${row["Adhar Number"] || ""}</p>
+        <p><strong>Mobile:</strong> ${row["Mobile Number"] || ""}</p>
+      `;
+
+      updateModalBalanceStyles();
+
+      document.getElementById("accountUpdateModal").classList.add("show");
+    }
+
+    function closeAccountModal() {
+      document.getElementById("accountUpdateModal").classList.remove("show");
+      document.getElementById("accountUpdateForm").reset();
+      document.getElementById("modalAccountInfo").innerHTML = "";
+    }
+
+    function calculateModalGrossSalary() {
+      const salaryMonth = parseFloat(document.getElementById("modalSalaryMonth").value) || 0;
+      const totalDuty = parseFloat(document.getElementById("modalTotalDuty").value) || 0;
+      const totalOT = parseFloat(document.getElementById("modalTotalOT").value) || 0;
+
+      const grossSalary = (salaryMonth * totalDuty / 26) + (salaryMonth * totalOT / 208);
+
+      document.getElementById("modalGrossSalary").value = grossSalary.toFixed(2);
+
+      calculateModalBalanceToBePaid();
+    }
+
+    function calculateModalBalanceToBePaid() {
+      const prevBalance = parseFloat(document.getElementById("modalPrevBalance").value) || 0;
+      const grossSalary = parseFloat(document.getElementById("modalGrossSalary").value) || 0;
+      const advance = parseFloat(document.getElementById("modalAdvance").value) || 0;
+      const salaryPaid = parseFloat(document.getElementById("modalSalaryPaid").value) || 0;
+
+      const balanceToBePaid = prevBalance + grossSalary - advance - salaryPaid;
+
+      const balanceInput = document.getElementById("modalBalanceToBePaid");
+      balanceInput.value = balanceToBePaid.toFixed(2);
+
+      if (balanceToBePaid < 0) {
+        balanceInput.style.background = '#fee2e2';
+        balanceInput.style.color = '#dc2626';
+        balanceInput.style.fontWeight = '600';
+      } else {
+        balanceInput.style.background = '#e8f4f8';
+        balanceInput.style.color = '';
+        balanceInput.style.fontWeight = '';
+      }
+    }
+
+    function updateModalBalanceStyles() {
+      const prevBalanceInput = document.getElementById("modalPrevBalance");
+      const prevBalance = parseFloat(prevBalanceInput.value) || 0;
+
+      if (prevBalance < 0) {
+        prevBalanceInput.style.background = '#fee2e2';
+        prevBalanceInput.style.color = '#dc2626';
+        prevBalanceInput.style.fontWeight = '600';
+      } else {
+        prevBalanceInput.style.background = '#e8f4f8';
+        prevBalanceInput.style.color = '';
+        prevBalanceInput.style.fontWeight = '';
+      }
+
+      const balanceInput = document.getElementById("modalBalanceToBePaid");
+      const balance = parseFloat(balanceInput.value) || 0;
+
+      if (balance < 0) {
+        balanceInput.style.background = '#fee2e2';
+        balanceInput.style.color = '#dc2626';
+        balanceInput.style.fontWeight = '600';
+      } else {
+        balanceInput.style.background = '#e8f4f8';
+        balanceInput.style.color = '';
+        balanceInput.style.fontWeight = '';
+      }
+    }
+
+    function confirmModalAccount() {
+      const form = document.getElementById("accountUpdateForm");
+      const data = Object.fromEntries(new FormData(form).entries());
+
+      if (!data.employeeId || !data.monthYear || !data.salaryMonth || !data.grossSalary || !data.salaryPaid) {
+        Swal.fire({
+          icon: 'error',
+          title: 'Missing Information',
+          text: 'Please fill in all required fields.',
+          confirmButtonColor: '#2563eb'
+        });
+        return;
+      }
+
+      Swal.fire({
+        title: 'Confirm Account Update',
+        html: `
+          <div style="text-align: left; padding: 10px;">
+            <p><strong>Employee:</strong> ${data.employeeName} (${data.employeeId})</p>
+            <p><strong>Category:</strong> ${data.category}</p>
+            <p><strong>Mobile:</strong> ${data.mobile}</p>
+            <p><strong>Month-Year:</strong> ${data.monthYear}</p>
+            <p><strong>Total Duty:</strong> ${data.totalDuty}</p>
+            <p><strong>Total OT:</strong> ${data.totalOT}</p>
+            <p><strong>Salary/Month:</strong> ₹${data.salaryMonth}</p>
+            <p><strong>Gross Salary:</strong> ₹${data.grossSalary}</p>
+            <p><strong>Advance:</strong> ₹${data.advance || 0}</p>
+            <p><strong>Salary Paid:</strong> ₹${data.salaryPaid}</p>
+            <p><strong>Balance:</strong> ₹${data.balanceToBePaid || 0}</p>
+            <hr style="margin: 15px 0; border: none; border-top: 1px solid #e2e8f0;">
+            <p style="color: #2563eb; font-size: 13px; margin-top: 10px;">
+              <strong>Note:</strong> All subsequent months will be automatically recalculated with updated values.
+            </p>
+          </div>
+        `,
+        icon: 'question',
+        showCancelButton: true,
+        confirmButtonColor: '#2563eb',
+        cancelButtonColor: '#d33',
+        confirmButtonText: 'Yes, Update',
+        cancelButtonText: 'Cancel'
+      }).then((result) => {
+        if (result.isConfirmed) {
+          Swal.fire({
+            title: 'Updating...',
+            html: '<p>Updating account entry and recalculating all subsequent months...</p>',
+            allowOutsideClick: false,
+            didOpen: () => {
+              Swal.showLoading();
+            }
+          });
+
+          google.script.run.withSuccessHandler(msg => {
+            Swal.fire({
+              icon: 'success',
+              title: 'Success!',
+              html: `<p>${msg}</p><p style="color: #059669; margin-top: 10px; font-size: 14px;">All subsequent months have been recalculated automatically.</p>`,
+              confirmButtonColor: '#2563eb'
+            }).then(() => {
+              closeAccountModal();
+              fetchAccountHistory();
+            });
+          }).withFailureHandler(err => {
+            Swal.fire({
+              icon: 'error',
+              title: 'Update Failed',
+              text: err.message || 'An error occurred while updating the account entry.',
+              confirmButtonColor: '#2563eb'
+            });
+          }).submitAccount(data);
+        }
+      });
+    }
+  </script>
+</body>
+</html>
