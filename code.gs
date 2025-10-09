@@ -175,7 +175,10 @@ function submitJournal(data) {
     data.transactionNote || "",
     data.monthYear
   ]);
-  return "✅ Journal entry saved successfully!";
+
+  processJournalEntryToAccount(data.employeeAdhar, data.mobile, data.monthYear, data.datePayment, data.transactionMoney);
+
+  return "Journal entry saved successfully!";
 }
 
 // 🔹 Update Journal Entry
@@ -222,7 +225,9 @@ function updateJournal(data, rowIndex) {
     data.monthYear
   ]]);
 
-  return "✅ Journal entry updated successfully!";
+  recalculateAllAccountsFromJournal(data.employeeId);
+
+  return "Journal entry updated successfully!";
 }
 
 // 🔹 Save or Update Account Entry
@@ -443,7 +448,7 @@ function updateNextMonthPreviousBalance(empId, currentMonthYear, balanceToBePaid
 function getMonthYearOptions() {
   ensureSheets();
   const ss = SpreadsheetApp.getActiveSpreadsheet();
-  const sheet = ss.getSheetByName("Journal");
+  const sheet = ss.getSheetByName("Attendance");
   const data = sheet.getDataRange().getValues();
   const headers = data[0];
   const monthIndex = headers.indexOf("Month-Year");
@@ -741,6 +746,127 @@ function getAccountMonthYearOptions() {
   options = [...new Set(options)];
   options.sort((a, b) => new Date(a) - new Date(b));
   return options;
+}
+
+// 🔹 Process Journal Entry to Account Sheet
+function processJournalEntryToAccount(employeeAdhar, mobile, journalMonthYear, datePayment, transactionMoney) {
+  const ss = SpreadsheetApp.getActiveSpreadsheet();
+  const accountSheet = ss.getSheetByName("Account");
+
+  if (!accountSheet) {
+    Logger.log("Account sheet not found");
+    return;
+  }
+
+  const accountData = accountSheet.getDataRange().getValues();
+  const accountHeaders = accountData[0];
+
+  const adharIndex = accountHeaders.indexOf("Adhar Number");
+  const mobileIndex = accountHeaders.indexOf("Mobile Number");
+  const monthYearIndex = accountHeaders.indexOf("Month-Year");
+  const advanceIndex = accountHeaders.indexOf("Advance");
+  const salaryPaidIndex = accountHeaders.indexOf("Salary Paid");
+  const empIdIndex = accountHeaders.indexOf("Employee ID");
+
+  let paymentDate;
+  if (datePayment instanceof Date) {
+    paymentDate = datePayment;
+  } else if (datePayment) {
+    paymentDate = new Date(datePayment);
+  }
+
+  const paymentDay = paymentDate.getDate();
+
+  const [journalMonth, journalYear] = journalMonthYear.split('-');
+  const journalDate = new Date(journalMonth + ' 1, ' + journalYear);
+
+  let targetMonthYear = journalMonthYear;
+
+  if (paymentDay === 15) {
+    const previousMonth = new Date(journalDate);
+    previousMonth.setMonth(previousMonth.getMonth() - 1);
+    targetMonthYear = Utilities.formatDate(previousMonth, Session.getScriptTimeZone(), "MMM-yyyy");
+  }
+
+  for (let i = 1; i < accountData.length; i++) {
+    const rowAdhar = String(accountData[i][adharIndex]);
+    const rowMobile = String(accountData[i][mobileIndex]);
+    const rowMonthYear = accountData[i][monthYearIndex];
+
+    let formattedMonthYear = "";
+    if (rowMonthYear instanceof Date) {
+      formattedMonthYear = Utilities.formatDate(rowMonthYear, Session.getScriptTimeZone(), "MMM-yyyy");
+    } else if (rowMonthYear) {
+      const parsed = new Date(rowMonthYear);
+      if (!isNaN(parsed)) {
+        formattedMonthYear = Utilities.formatDate(parsed, Session.getScriptTimeZone(), "MMM-yyyy");
+      } else {
+        formattedMonthYear = String(rowMonthYear);
+      }
+    }
+
+    if (rowAdhar === String(employeeAdhar) && rowMobile === String(mobile) && formattedMonthYear === targetMonthYear) {
+      const rowIndex = i + 1;
+      const empId = accountData[i][empIdIndex];
+
+      if (paymentDay === 15) {
+        const currentSalaryPaid = parseFloat(accountData[i][salaryPaidIndex]) || 0;
+        const newSalaryPaid = currentSalaryPaid + parseFloat(transactionMoney);
+        accountSheet.getRange(rowIndex, salaryPaidIndex + 1).setValue(newSalaryPaid);
+        Logger.log(`Updated Salary Paid for ${empId} in ${targetMonthYear}: ${currentSalaryPaid} + ${transactionMoney} = ${newSalaryPaid}`);
+      } else {
+        const currentAdvance = parseFloat(accountData[i][advanceIndex]) || 0;
+        const newAdvance = currentAdvance + parseFloat(transactionMoney);
+        accountSheet.getRange(rowIndex, advanceIndex + 1).setValue(newAdvance);
+        Logger.log(`Updated Advance for ${empId} in ${targetMonthYear}: ${currentAdvance} + ${transactionMoney} = ${newAdvance}`);
+      }
+
+      recalculateSubsequentMonths(empId, targetMonthYear);
+      break;
+    }
+  }
+}
+
+// 🔹 Recalculate all accounts from Journal data (for updates/deletions)
+function recalculateAllAccountsFromJournal(empId) {
+  const ss = SpreadsheetApp.getActiveSpreadsheet();
+  const accountSheet = ss.getSheetByName("Account");
+
+  if (!accountSheet) {
+    return;
+  }
+
+  const accountData = accountSheet.getDataRange().getValues();
+  const accountHeaders = accountData[0];
+  const empIdIndex = accountHeaders.indexOf("Employee ID");
+  const monthYearIndex = accountHeaders.indexOf("Month-Year");
+
+  let employeeRecords = [];
+  for (let i = 1; i < accountData.length; i++) {
+    const rowEmpId = String(accountData[i][empIdIndex]);
+    if (rowEmpId === String(empId)) {
+      const rowMonthYear = accountData[i][monthYearIndex];
+      let formattedMonthYear = "";
+      if (rowMonthYear instanceof Date) {
+        formattedMonthYear = Utilities.formatDate(rowMonthYear, Session.getScriptTimeZone(), "MMM-yyyy");
+      } else if (rowMonthYear) {
+        const parsed = new Date(rowMonthYear);
+        formattedMonthYear = !isNaN(parsed)
+          ? Utilities.formatDate(parsed, Session.getScriptTimeZone(), "MMM-yyyy")
+          : String(rowMonthYear);
+      }
+      employeeRecords.push({
+        monthYear: formattedMonthYear,
+        monthDate: new Date(formattedMonthYear)
+      });
+    }
+  }
+
+  employeeRecords.sort((a, b) => a.monthDate - b.monthDate);
+
+  if (employeeRecords.length > 0) {
+    recalculateSubsequentMonths(empId, employeeRecords[0].monthYear);
+  }
 }
 
 function getJournalHistory(empId, specificDate, fromDate, toDate) {
