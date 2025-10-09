@@ -845,12 +845,12 @@
         <div class="section-grid">
           <div class="form-group">
             <label>Total Duty</label>
-            <input type="number" name="totalDuty" id="totalDutyInput" placeholder="Enter total duty days" onchange="calculateGrossSalary()" oninput="calculateGrossSalary()" required>
+            <input type="number" name="totalDuty" id="totalDutyInput" placeholder="Enter total duty days" onchange="calculateGrossSalary()" oninput="calculateGrossSalary()" readonly>
           </div>
 
           <div class="form-group">
             <label>Total OT</label>
-            <input type="number" name="totalOT" id="totalOTInput" placeholder="Enter overtime hours" onchange="calculateGrossSalary()" oninput="calculateGrossSalary()">
+            <input type="number" name="totalOT" id="totalOTInput" placeholder="Enter overtime hours" onchange="calculateGrossSalary()" oninput="calculateGrossSalary()" readonly>
           </div>
         </div>
 
@@ -1050,12 +1050,12 @@
               <div class="section-grid">
                 <div class="form-group">
                   <label>Total Duty</label>
-                  <input type="number" name="totalDuty" id="modalTotalDuty" placeholder="Enter total duty days" onchange="calculateModalGrossSalary()" oninput="calculateModalGrossSalary()" required>
+                  <input type="number" name="totalDuty" id="modalTotalDuty" placeholder="Enter total duty days" onchange="calculateModalGrossSalary()" oninput="calculateModalGrossSalary()" readonly>
                 </div>
 
                 <div class="form-group">
                   <label>Total OT</label>
-                  <input type="number" name="totalOT" id="modalTotalOT" placeholder="Enter overtime hours" onchange="calculateModalGrossSalary()" oninput="calculateModalGrossSalary()">
+                  <input type="number" name="totalOT" id="modalTotalOT" placeholder="Enter overtime hours" onchange="calculateModalGrossSalary()" oninput="calculateModalGrossSalary()"readonly>
                 </div>
               </div>
             </div>
